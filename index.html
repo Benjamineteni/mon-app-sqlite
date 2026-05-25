@@ -1,13 +1,53 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Hello World!</title>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page de connexion</title>
 
-  </head>
-  <body>
-    <h1>💖 Hello World!</h1>
-    <p>Welcome to your Electron application.</p>
-    <script type="module" src="/src/renderer.js"></script>
-  </body>
-</html>
+    <link rel="stylesheet" href="./index.css">
+</head>
+<body>
+
+    <div class="container">
+
+        <div class="login-box">
+            <h2>Connexion</h2>
+
+            <form>
+
+                <div class="input-box">
+                    <label>Email</label>
+                    <input type="email" placeholder="Entrez votre email" required>
+                </div>
+
+                <div class="input-box">
+                    <label>Mot de passe</label>
+                    <input type="password" placeholder="Entrez votre mot de passe" required>
+                </div>
+
+                <div class="options">
+                    <label>
+                        <input type="checkbox">
+                        Se souvenir
+                    </label>
+
+                    <a href="#">Mot de passe oublié ?</a>
+                </div>
+
+                <button type="submit" class="btn">
+                    Se connecter
+                </button>
+
+                <div class="register">
+                    Pas encore de compte ?
+                    <a href="#">Créer un compte</a>
+                </div>
+
+            </form>
+        </div>
+
+    </div>
+
+</body>
+</html> 
