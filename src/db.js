@@ -5,6 +5,7 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const sqlite3 = require('sqlite3');
 
+
 let db;
 
 function run(sql, params = []) {
@@ -34,11 +35,12 @@ function get(sql, params = []) {
   });
 }
 
-export async function initDb({ userDataPath }) {
+
+export async function initDatabase({ userDataPath }) {
   if (db) return db;
 
   fs.mkdirSync(userDataPath, { recursive: true });
-  const dbPath = path.join(userDataPath, 'store.db');
+  const dbPath = path.join(userDataPath, 'electron-sample.db');
 
   db = new sqlite3.Database(dbPath);
 
@@ -48,8 +50,10 @@ export async function initDb({ userDataPath }) {
   await run(`
     CREATE TABLE IF NOT EXISTS products (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      text TEXT NOT NULL,
-      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      name TEXT NOT NULL,
+      price REAL NOT NULL,
+      quantity INTEGER DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
   `);
 
@@ -57,33 +61,47 @@ export async function initDb({ userDataPath }) {
 }
 
 
-export async function closeDb() {
-  if (!db) return;
-  await new Promise((resolve, reject) => {
-    db.close((err) => (err ? reject(err) : resolve()));
+/*export function registerProductIpc() {
+  // 1. CREATE (Créer un produit)
+  ipcMain.handle('product:create', async (event, product) => {
+    try {
+      const stmt = db.prepare('INSERT INTO products (name, price, stock) VALUES (?, ?, ?)');
+      const info = stmt.run(product.name, product.price, product.stock);
+      return { success: true, id: info.lastInsertRowid };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
   });
-  db = undefined;
-}
 
-export async function listNotes() {
-  if (!db) throw new Error('DB not initialized');
-  return all('SELECT id, text, created_at as createdAt FROM notes ORDER BY id DESC');
-}
+  // 2. READ (Lire/Récupérer les produits)
+  ipcMain.handle('product:read-all', async () => {
+    try {
+      const stmt = db.prepare('SELECT * FROM products ORDER BY id DESC');
+      return stmt.all();
+    } catch (error) {
+      throw error;
+    }
+  });
 
-export async function addNote(id, name, designation, quantity,date) {
-  if (!db) throw new Error('DB not initialized');
-  const trimmed = String(text ?? '').trim();
-  if (!trimmed) throw new Error('Text is required');
+  // 3. UPDATE (Modifier un produit)
+  ipcMain.handle('product:update', async (event, id, updatedData) => {
+    try {
+      const stmt = db.prepare('UPDATE products SET name = ?, price = ?, stock = ? WHERE id = ?');
+      const info = stmt.run(updatedData.name, updatedData.price, updatedData.stock, id);
+      return { success: info.changes > 0 };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  });
 
-  const { lastID } = await run('INSERT INTO notes (text) VALUES (?)', [trimmed]);
-  return get('SELECT id, text, created_at as createdAt FROM notes WHERE id = ?', [lastID]);
-}
-
-export async function deleteNote(id) {
-  if (!db) throw new Error('DB not initialized');
-  const noteId = Number(id);
-  if (!Number.isInteger(noteId)) throw new Error('Invalid id');
-
-  const result = await run('DELETE FROM notes WHERE id = ?', [noteId]);
-  return { deleted: result.changes > 0 };
-}
+  // 4. DELETE (Supprimer un produit)
+  ipcMain.handle('product:delete', async (event, id) => {
+    try {
+      const stmt = db.prepare('DELETE FROM products WHERE id = ?');
+      const info = stmt.run(id);
+      return { success: info.changes > 0 };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  });
+}*/

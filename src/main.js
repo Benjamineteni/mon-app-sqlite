@@ -1,7 +1,11 @@
-import { app, BrowserWindow } from 'electron';
+const { app, BrowserWindow, ipcMain } = require('electron');
+
+//import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
-import { register } from 'node:module';
+import { initDatabase } from './db.js'; // bref ici vous importez tout ce que vous avez exporté de db.js
+
+
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (started) {
@@ -32,41 +36,15 @@ const createWindow = () => {
   // mainWindow.webContents.openDevTools();
 };
 
-function registerDbIpc() {
+/*function registerDbIpc() {
   ipcMain.handle('db:listNotes', async () => await listNotes());
   ipcMain.handle('db:addNote', async (_event, text) => await addNote(text));
   ipcMain.handle('db:deleteNote', async (_event, id) => await deleteNote(id));
-}
+}*/
 const sessionsByWebContentsId = new Map();
 
-function registerAuthIpc() {
-  ipcMain.handle('auth:login', async (_event, { username, password }) => {
-    const webContentsId = _event.sender.id;
-    const session = sessionsByWebContentsId.get(webContentsId);
-    if (session) {
-      throw new Error('Already logged in');
-    }
-
-    // Here you would normally check the username and password against your database
-    if (username === 'admin' && password === 'password') {
-      const newSession = { username };
-      sessionsByWebContentsId.set(webContentsId, newSession);
-      return { success: true };
-    } else {
-      return { success: false, message: 'Invalid credentials' };
-    }
-  });
-
-  ipcMain.handle('auth:getSession', async (_event) => {
-    const webContentsId = _event.sender.id;
-    return sessionsByWebContentsId.get(webContentsId) || null;
-  });
-
-  ipcMain.handle('auth:logout', async (_event) => {
-    const webContentsId = _event.sender.id;
-    sessionsByWebContentsId.delete(webContentsId);
-    return { success: true };
-  });
+function registerDbIpc() {
+  
 }
 
 // This method will be called when Electron has finished
@@ -74,7 +52,7 @@ function registerAuthIpc() {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   console.log(`Initializing DB at the path: ${app.getPath('userData')}`);
-  return initDb({ userDataPath: app.getPath('userData') });
+  return initDatabase({ userDataPath: app.getPath('userData') });
 }).then(() => {
   registerDbIpc();
   createWindow();
@@ -90,7 +68,7 @@ app.whenReady().then(() => {
 
 
 // Si database.js exporte initDb
-const { initDb } = require('./db.js'); 
+//const { initDb } = require('./db.js'); 
 // ou avec ES Modules :
 // import { initDb } from './database.js';
 
@@ -106,7 +84,66 @@ app.on('will-quit', () => {
   void closeDb();
 });
 
+// creation d'un nouveau produit (exemple d'utilisation de l'API exposée dans preload.js)
+async function ajouterNouveauProduit() {
+  const nouveauProduit = {
+    name: "Paracetamol",
+    price: 150, // prix en FCFA par exemple
+    stock: 50
+  };
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
+  const resultat = await window.apiProducts.create(nouveauProduit);
+  if (resultat.success) {
+    console.log(`Produit créé avec succès ! ID : ${resultat.id}`);
+    chargerListeProduits(); // Rafraîchir l'affichage
+  } else {
+    console.error("Erreur lors de la création :", resultat.error);
+  }
+}
 
+//afficher le produit
+async function chargerListeProduits() {
+  try {
+    const listeProduits = await window.apiProducts.readAll();
+    console.log("Produits en stock :", listeProduits);
+    
+    // Exemple d'injection rapide dans le DOM
+    const conteneur = document.getElementById('liste-produits');
+    conteneur.innerHTML = listeProduits.map(p => `
+      <div id="prod-${p.id}">
+        <strong>${p.name}</strong> - ${p.price} XAF (Stock: ${p.stock})
+        <button onclick="modifierProduit(${p.id})">Modifier</button>
+        <button onclick="supprimerProduit(${p.id})">Supprimer</button>
+      </div>
+    `).join('');
+  } catch (error) {
+    console.error("Erreur d'affichage :", error);
+  }
+}
+
+//mise a jour d'un produit
+async function modifierProduit(id) {
+  const donneesModifiees = {
+    name: "paracetamol (Modifié)",
+    price: 1300,
+    stock: 45
+  };
+
+  const resultat = await window.apiProducts.update(id, donneesModifiees);
+  if (resultat.success) {
+    console.log("Le produit a été mis à jour.");
+    chargerListeProduits();
+  }
+}
+
+//suppression d'un produit
+async function supprimerProduit(id) {
+  if (confirm("Voulez-vous vraiment supprimer ce produit ?")) {
+    const resultat = await window.apiProducts.delete(id);
+    if (resultat.success) {
+      console.log("Produit supprimé.");
+      // Optionnel : Retirer directement l'élément du DOM sans tout recharger
+      document.getElementById(`prod-${id}`).remove();
+    }
+  }
+}
