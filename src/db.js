@@ -35,6 +35,12 @@ function get(sql, params = []) {
   });
 }
 
+function checkDbInitialized() {
+  if (!db) {
+    throw new Error('DB not initialized. Call initDatabase() first.');
+  }
+}
+
 
 export async function initDatabase({ userDataPath }) {
   if (db) return db;
@@ -60,13 +66,33 @@ export async function initDatabase({ userDataPath }) {
   return db;
 }
 
-export async function createProduct({ name, price, quantity }) {
-  if (!db) throw new Error('DB not initialized');
+export async function closeDb() {
+  if (!db) return;
+  await new Promise((resolve, reject) => {
+    db.close((err) => (err ? reject(err) : resolve()));
+  });
+  db = undefined;
+}
 
-  const productName = String(name ?? '').trim();
-  if (!productName) throw new Error('Product name is required');
+export async function createProduct(product) {
+  
+  checkDbInitialized();
 
-  const result = await run('INSERT INTO products (name, price, quantity) VALUES (?, ?, ?)', [productName, price, quantity]);
-  console.log(result)
+  const name = String(product.name ?? '').trim();
+  if (!name) throw new Error('Product name is required');
+
+  const price = Number(product.price ?? 0);
+  const quantity = Number(product.quantity ?? 0);
+
+  const result = await run('INSERT INTO products (name, price, quantity) VALUES (?, ?, ?)', [name, price, quantity]);
   return await get('SELECT id, name, price, quantity, created_at FROM products WHERE id = ?', [result.lastID]);
 }
+
+export async function listProducts() {
+
+  checkDbInitialized();
+  
+  return await all('SELECT id, name, price, quantity, created_at FROM products ORDER BY created_at DESC');
+}
+
+

@@ -13,57 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('searchInput').addEventListener('input', filtrerProduits);
 });
 
-// Charger tous les produits
-async function chargerProduits() {
-    try {
-        const produits = await window.electronAPI.getProduits();
-        tousLesProduits = produits;
-        afficherProduits(produits);
-    } catch (error) {
-        console.error('Erreur lors du chargement des produits:', error);
-        afficherErreur('Impossible de charger les produits');
-    }
-}
-
-// Afficher les produits dans le tableau
-function afficherProduits(produits) {
-    const tbody = document.getElementById('produitsTableBody');
-    
-    if (produits.length === 0) {
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="6" class="text-center text-muted">
-                    <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
-                    Aucun produit trouvé
-                </td>
-            </tr>
-        `;
-        return;
-    }
-    
-    tbody.innerHTML = produits.map(produit => `
-        <tr>
-            <td>${produit.id}</td>
-            <td><strong>${escapeHtml(produit.nom)}</strong></td>
-            <td>${escapeHtml(produit.description || '-')}</td>
-            <td class="text-end">${formatPrix(produit.prix)} €</td>
-            <td class="text-center">
-                <span class="badge ${produit.stock > 0 ? 'bg-success' : 'bg-danger'}">
-                    ${produit.stock}
-                </span>
-            </td>
-            <td>
-                <button class="btn btn-sm btn-info btn-action" onclick="modifierProduit(${produit.id})" title="Modifier">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="btn btn-sm btn-danger btn-action" onclick="demanderSuppression(${produit.id})" title="Supprimer">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        </tr>
-    `).join('');
-}
-
 // Filtrer les produits
 function filtrerProduits() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
@@ -218,20 +167,4 @@ function afficherNotification(message, type) {
             alertDiv.parentNode.removeChild(alertDiv);
         }
     }, 3000);
-}
-
-// Formater le prix
-function formatPrix(prix) {
-    return new Intl.NumberFormat('fr-FR', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    }).format(prix);
-}
-
-// Échapper les caractères HTML
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
 }

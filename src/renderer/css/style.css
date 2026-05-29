@@ -1,0 +1,96 @@
+body {
+        background-color: #f8f9fa;
+        font-family: sans-serif;
+      }
+
+      .window-header {
+        border-bottom: 1px solid #e0e0e0;
+        padding: 10px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .window-title {
+        color: #5f06ee;
+        font-size: 1.5rem;
+        margin: 0;
+      }
+
+      .section-title {
+        color: #02070c;
+        font-weight: 700;
+        font-size: 1.1rem;
+      }
+      .form-label {
+        color: #01080f;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+      .form-control {
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 10px;
+        transition: border-color 0.3s;
+      }
+      .btn-save {
+        background-color: #27ae60;
+        color: white;
+        border: none;
+        padding: 8px 30px;
+        font-weight: 500;
+      }
+      .btn-save:hover {
+        background-color: #219653;
+        color: white;
+      }
+      .btn-cancel {
+        background-color: transparent;
+        color: #f51e07;
+        border: 1px solid #c0392b;
+        padding: 8px 25px;
+        font-weight: 500;
+      }
+      .btn-cancel:hover {
+        background-color: #fce4e4;
+        color: #c0392b;
+        transition: none;
+      }
+      .product-list {
+        border: 1px solid #e0e0e0;
+        border-radius: 0;
+        min-height: 50px;
+      }
+      .product-item {
+        border-bottom: 1px solid #e0e0e0;
+        padding: 12px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .product-item:last-child {
+        border-bottom: none;
+      }
+      .product-name {
+        color: #083561;
+        font-weight: 500;
+        margin: 0;
+      }
+      .product-price {
+        color: #27ae60;
+        font-weight: bold;
+        margin: 0;
+        font-size: 0.9rem;
+      }
+      .action-icons i {
+        font-size: 1.3rem;
+        color: #2c3e50;
+        cursor: pointer;
+        margin-left: 15px;
+      }
+      .action-icons i:hover {
+        color: #e74c3c;
+      }
+      .action-icons i.bi-pencil-square:hover {
+        color: #2980b9;
+      }
