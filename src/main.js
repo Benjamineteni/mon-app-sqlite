@@ -3,7 +3,8 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 //import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
-import { initDatabase } from './db.js'; // bref ici vous importez tout ce que vous avez exporté de db.js
+import { initDatabase, createProduct } from './db.js'; // bref ici vous importez tout ce que vous avez exporté de db.js
+
 
 
 
@@ -33,7 +34,7 @@ const createWindow = () => {
   }
 
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
+   mainWindow.webContents.openDevTools();
 };
 
 /*function registerDbIpc() {
@@ -44,6 +45,7 @@ const createWindow = () => {
 const sessionsByWebContentsId = new Map();
 
 function registerDbIpc() {
+  ipcMain.handle('product:create', async (_event, name, price, quantity) => await createProduct(name, price, quantity));
   
 }
 

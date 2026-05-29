@@ -60,48 +60,13 @@ export async function initDatabase({ userDataPath }) {
   return db;
 }
 
+export async function createProduct({ name, price, quantity }) {
+  if (!db) throw new Error('DB not initialized');
 
-/*export function registerProductIpc() {
-  // 1. CREATE (Créer un produit)
-  ipcMain.handle('product:create', async (event, product) => {
-    try {
-      const stmt = db.prepare('INSERT INTO products (name, price, stock) VALUES (?, ?, ?)');
-      const info = stmt.run(product.name, product.price, product.stock);
-      return { success: true, id: info.lastInsertRowid };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  });
+  const productName = String(name ?? '').trim();
+  if (!productName) throw new Error('Product name is required');
 
-  // 2. READ (Lire/Récupérer les produits)
-  ipcMain.handle('product:read-all', async () => {
-    try {
-      const stmt = db.prepare('SELECT * FROM products ORDER BY id DESC');
-      return stmt.all();
-    } catch (error) {
-      throw error;
-    }
-  });
-
-  // 3. UPDATE (Modifier un produit)
-  ipcMain.handle('product:update', async (event, id, updatedData) => {
-    try {
-      const stmt = db.prepare('UPDATE products SET name = ?, price = ?, stock = ? WHERE id = ?');
-      const info = stmt.run(updatedData.name, updatedData.price, updatedData.stock, id);
-      return { success: info.changes > 0 };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  });
-
-  // 4. DELETE (Supprimer un produit)
-  ipcMain.handle('product:delete', async (event, id) => {
-    try {
-      const stmt = db.prepare('DELETE FROM products WHERE id = ?');
-      const info = stmt.run(id);
-      return { success: info.changes > 0 };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  });
-}*/
+  const result = await run('INSERT INTO products (name, price, quantity) VALUES (?, ?, ?)', [productName, price, quantity]);
+  console.log(result)
+  return await get('SELECT id, name, price, quantity, created_at FROM products WHERE id = ?', [result.lastID]);
+}

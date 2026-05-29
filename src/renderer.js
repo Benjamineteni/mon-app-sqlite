@@ -1,17 +1,20 @@
-const formEl = document.querySelector('#add-form');
-const inputEl = document.querySelector('#note-text');
+const productForm = document.querySelector('#productForm');
+const productName = document.querySelector('#productName');
+const productPrice = document.querySelector('#productPrice');
+const productQty = document.querySelector('#productQty');
 
-formEl?.addEventListener('submit', async (e) => {
+
+productForm?.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const text = inputEl?.value ?? '';
+  const name = productName?.value ?? '';
+  const price = productPrice?.value ?? '';
+  const quantity = productQty?.value ?? '';
 
   try {
-    setStatus('Saving…');
-    await window.db.addNote(text);
-    if (inputEl) inputEl.value = '';
-    await refresh();
-    setStatus('');
+
+   const newProduct = await window.apiProducts.createProduct(name, price, quantity);
+   console.log('product created successfully :', newProduct);
   } catch (err) {
-    setStatus(err?.message ?? String(err));
+    console.error('Error creating product:', err);
   }
 });
