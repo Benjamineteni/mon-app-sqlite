@@ -33,9 +33,13 @@ import './renderer/css/bootstrap-icons.css';
 import './renderer/js/bootstrap.min.js';
 
 const productForm = document.querySelector('#productForm');
+const productId = document.querySelector('#productId');
 const productName = document.querySelector('#productName');
 const productPrice = document.querySelector('#productPrice');
 const productQty = document.querySelector('#productQty');
+const btnSubmit = document.querySelector('#btnSubmit');
+
+let productsCache = [];
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', () => {
@@ -52,18 +56,26 @@ productForm?.addEventListener('submit', async (e) => {
   console.log('Creating product with values:', { name, price, quantity });
 
   try {
-
     let product = {
       name,
       price,
       quantity
     };
 
-   const newProduct = await window.apiProducts.createProduct(product);
-   console.log('product created successfully :', newProduct);
-   loadProducts();
+    if (productId?.value) {
+      await window.apiProducts.updateProduct(Number(productId.value), product);
+      productId.value = '';
+      btnSubmit.textContent = 'Save';
+      console.log('product updated successfully');
+    } else {
+      const newProduct = await window.apiProducts.createProduct(product);
+      console.log('product created successfully :', newProduct);
+    }
+
+    productForm?.reset();
+    loadProducts();
   } catch (err) {
-    console.error('Error creating product:', err);
+    console.error('Error saving product:', err);
   }
 });
 
@@ -72,6 +84,7 @@ productForm?.addEventListener('submit', async (e) => {
 async function loadProducts() {
     try {
         const products = await window.apiProducts.listProducts();
+        productsCache = products;
         displayProducts(products);
     } catch (error) {
         console.error('Error occured when loading products:', error);
@@ -115,6 +128,34 @@ function displayProducts(products) {
         </tr>
     `).join('');
 }
+
+window.deleteProduct = async function deleteProduct(id) {
+  if (!confirm('Voulez-vous vraiment supprimer ce produit ?')) {
+    return;
+  }
+
+  try {
+    await window.apiProducts.deleteProduct(id);
+    await loadProducts();
+  } catch (error) {
+    console.error('Error deleting product:', error);
+  }
+};
+
+window.updateProduct = async function updateProduct(id) {
+  const product = productsCache.find((item) => item.id === Number(id));
+  if (!product) {
+    console.warn('Produit introuvable pour la mise à jour', id);
+    return;
+  }
+
+  productId.value = product.id;
+  productName.value = product.name ?? '';
+  productPrice.value = product.price ?? '';
+  productQty.value = product.quantity ?? '';
+  btnSubmit.textContent = 'Update';
+  productName.focus();
+};
 
 // Formater le prix
 function formatPrice(price) {

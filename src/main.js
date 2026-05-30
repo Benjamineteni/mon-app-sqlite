@@ -3,7 +3,7 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 //import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
-import { initDatabase, createProduct, listProducts, closeDb } from './db.js'; // bref ici vous importez tout ce que vous avez exporté de db.js
+import { initDatabase, createProduct, listProducts, updateProduct, deleteProduct, closeDb } from './db.js'; // bref ici vous importez tout ce que vous avez exporté de db.js
 
 
 
@@ -47,7 +47,8 @@ const sessionsByWebContentsId = new Map();
 function registerDbIpc() {
   ipcMain.handle('product:create', async (_event, product) => await createProduct(product));
   ipcMain.handle('product:list', async () => await listProducts());
-  
+  ipcMain.handle('product:update', async (_event, id, product) => await updateProduct(id, product));
+  ipcMain.handle('product:delete', async (_event, id) => await deleteProduct(id));
 }
 
 // This method will be called when Electron has finished
