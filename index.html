@@ -1,166 +1,95 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pharmacy</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
-            font-family: sans-serif;
-        }
-        .window-container {
-            max-width: 800px;
-            margin: 30px auto;
-            background: #f3f2f5;
-            border: 1px solid #0f0101;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        .window-header {
-            border-bottom: 1px solid #e0e0e0;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .window-title {
-            color: #5f06ee;
-            font-size: 1.5rem;
-            margin: 0;
-        }
-        
-
-        .section-title {
-            color: #02070c;
-            font-weight: 700;
-            font-size: 1.1rem;
-            
-        }
-        .form-label {
-            color: #01080f;
-            font-weight: 600;
-            margin-bottom: 4px;
-    
-        }
-        .form-control {
-            background-color: #f8f9fa;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            padding: 10px;
-                transition: border-color 0.3s;
-            
-        }
-        .btn-save {
-            background-color: #27ae60;
-            color: white;
-            border: none;
-            padding: 8px 30px;
-            font-weight: 500;
-        }
-        .btn-save:hover {
-            background-color: #219653;
-            color: white;
-        }
-        .btn-cancel {
-            background-color: transparent;
-            color: #f51e07;
-            border: 1px solid #c0392b;
-            padding: 8px 25px;
-            font-weight: 500;
-        }
-        .btn-cancel:hover {
-            background-color: #fce4e4;
-            color: #c0392b;
-            transition: none;
-        }
-        .product-list {
-            border: 1px solid #e0e0e0;
-            border-radius: 0;
-            min-height: 50px;
-            
-        }
-        .product-item {
-            border-bottom: 1px solid #e0e0e0;
-            padding: 12px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .product-item:last-child {
-            border-bottom: none;
-        }
-        .product-name {
-            color: #083561;
-            font-weight: 500;
-            margin: 0;
-        }
-        .product-price {
-            color: #27ae60;
-            font-weight: bold;
-            margin: 0;
-            font-size: 0.9rem;
-        }
-        .action-icons i {
-            font-size: 1.3rem;
-            color: #2c3e50;
-            cursor: pointer;
-            margin-left: 15px;
-        }
-        .action-icons i:hover {
-            color: #e74c3c;
-        }
-        .action-icons i.bi-pencil-square:hover {
-            color: #2980b9;
-        }
-    </style>
-</head>
-<body>
-
-<div class="window-container">
-    <div class="window-header">
-        <h1 class="window-title">service Pharmacy</h1>
+  </head>
+  <body>
+    <div class="container">
+      <div class="window-header">
+        <h1 class="window-title">Pharmacy Service</h1>
         <div class="window-dots">
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
         </div>
-    </div>
+      </div>
 
-    <div class="p-4">
-        <h5 class="section-title mb-4">Products </h5>
-        
+      <div class="p-4">
+        <h5 class="section-title mb-4">Products</h5>
+
         <form id="productForm">
-            <input type="hidden" id="productId">
+          <input type="hidden" id="productId" />
 
-            <div class="mb-3">
-                <label for="productName" class="form-label">Name</label>
-                <input type="text" class="form-control" id="productName" placeholder="Product name" required>
-            </div>
+          <div class="mb-3">
+            <label for="productName" class="form-label">Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="productName"
+              placeholder="Product name"
+              required
+            />
+          </div>
 
-            <div class="row g-3 mb-4">
-                <div class="col-md-8">
-                    <label for="productPrice" class="form-label">Price</label>
-                    <input type="number" class="form-control" id="productPrice" placeholder="Price" required>
-                </div>
-                <div class="col-md-4">
-                    <label for="productQty" class="form-label">Qty</label>
-                    <input type="number" class="form-control" id="productQty" placeholder="Quantity" required>
-                </div>
+          <div class="row g-3 mb-4">
+            <div class="col-md-8">
+              <label for="productPrice" class="form-label">Price</label>
+              <input
+                type="number"
+                class="form-control"
+                id="productPrice"
+                placeholder="Price"
+                required
+              />
             </div>
+            <div class="col-md-4">
+              <label for="productQty" class="form-label">Quantity</label>
+              <input
+                type="number"
+                class="form-control"
+                id="productQty"
+                placeholder="Quantity"
+                required
+              />
+            </div>
+          </div>
 
-            <div class="d-flex justify-content-end gap-3 mb-5">
-                <button type="submit" id="btnSubmit" class="btn btn-save text-uppercase">Save</button>
-                <button type="reset" id="btnCancel" class="btn btn-cancel text-uppercase">Cancel</button>
-            </div>
+          <div class="d-flex justify-content-end gap-3 mb-5">
+            <button
+              type="submit"
+              id="btnSubmit"
+              class="btn btn-save text-uppercase"
+            >
+              Save
+            </button>
+            <button
+              type="reset"
+              id="btnCancel"
+              class="btn btn-cancel text-uppercase"
+            >
+              Cancel
+            </button>
+          </div>
         </form>
 
-        <div id="productList" class="product-list">
-            </div>
+        <div class="product-list">
+          <table class="table table-striped mb-0">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th class="text-start">Price</th>
+                <th class="text-center">Quantity</th>
+                <th class="text-start">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="product-list"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
-</div>
-<script src="renderer.js"></script>
-    
-</body>
+    <script type="module" src="src/renderer.js"></script>
+  </body>
 </html>

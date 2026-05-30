@@ -2,8 +2,8 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
 contextBridge.exposeInMainWorld('apiProducts', {
-  createProduct: (name, price, quantity) => ipcRenderer.invoke('product:create', name, price, quantity),
+  createProduct: (product) => ipcRenderer.invoke('product:create', product),
   listProducts: () => ipcRenderer.invoke('product:list'),
-  updateProduct: (id, name, price, quantity) => ipcRenderer.invoke('product:update', id, name, price, quantity),
+  updateProduct: (id, productToUpdate) => ipcRenderer.invoke('product:update', id, productToUpdate),
   deleteProduct: (id) => ipcRenderer.invoke('product:delete', id)
 });
