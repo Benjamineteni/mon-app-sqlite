@@ -92,6 +92,24 @@ app.whenReady().then(() => {
   });
 });
 
+// Connexion à votre fichier SQLite
+const db = new sqlite3.Database(path.join(__dirname, 'votre-base.db'));
+
+// Écouter l'appel du Renderer Process
+ipcMain.handle('update-product', async (event, productData) => {
+    return new Promise((resolve) => {
+        const sql = `UPDATE products SET name = ?, price = ? WHERE id = ?`;
+        
+        db.run(sql, [productData.name, productData.price, productData.id], function(err) {
+            if (err) {
+                resolve({ success: false, error: err.message });
+            } else {
+                resolve({ success: true, changes: this.changes });
+            }
+        });
+    });
+});
+
 
 // Si database.js exporte initDb
 //const { initDb } = require('./db.js'); 
