@@ -129,18 +129,7 @@ function displayProducts(products) {
     `).join('');
 }
 
-window.deleteProduct = async function deleteProduct(id) {
-  if (!confirm('Voulez-vous vraiment supprimer ce produit ?')) {
-    return;
-  }
 
-  try {
-    await window.apiProducts.deleteProduct(id);
-    await loadProducts();
-  } catch (error) {
-    console.error('Error deleting product:', error);
-  }
-};
 
 window.updateProduct = async function updateProduct(id) {
   const product = productsCache.find((item) => item.id === Number(id));

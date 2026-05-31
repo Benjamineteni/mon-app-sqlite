@@ -48,17 +48,21 @@ ipcMain.handle('delete-product', async (event, id) => {
   });
 });
 
-// Mise à jour d'un produit
-ipcMain.handle('update-product', async (event, product) => {
-  const { id, name, price, stock } = product;
-  const sql = 'UPDATE products SET name = ?, price = ?, stock = ? WHERE id = ?';
-  return new Promise((resolve, reject) => {
-    db.run(sql, [name, price, stock, id], function(err) {
-      if (err) reject(err);
-      else resolve({ changes: this.changes });
-    });
+// Écouter la demande de lecture des produits
+ipcMain.handle('get-products', async () => {
+  return new Promise((resolve) => {
+      const sql = `SELECT id, name, price FROM products`;
+      
+      db.all(sql, [], (err, rows) => {
+          if (err) {
+              resolve({ success: false, error: err.message });
+          } else {
+              resolve({ success: true, data: rows }); // rows contient le tableau de produits
+          }
+      });
   });
 });
+
 
 /*function registerDbIpc() {
   ipcMain.handle('db:listNotes', async () => await listNotes());
