@@ -115,6 +115,35 @@ function displayProducts(products) {
         </tr>
     `).join('');
 }
+  
+// Fonction pour supprimer
+async function handleDelete(id) {
+    if (confirm("Supprimer ce produit ?")) {
+      await window.api.deleteProduct(id);
+      loadProducts(); // Rafraîchir la liste
+    }
+  }
+  
+  // Fonction pour modifier
+  async function handleUpdate(id, Name, Price, quantity) {
+    // Ici, on peut utiliser un prompt ou un formulaire masqué
+    const newName = prompt("Nouveau nom :", Name);
+    const newPrice = prompt("Nouveau prix :", Price);
+    const newStock = prompt("Nouveau stock :", quantity);
+  
+    if (newName && newPrice && newStock) {
+      await window.api.updateProduct({
+        id,
+        name: newName,
+        price: parseFloat(newPrice),
+        stock: parseInt(quantity)
+      });
+      loadProducts();
+    }
+  }
+window.updateProduct = handleUpdate;
+window.deleteProduct = handleDelete;
+
 
 // Formater le prix
 function formatPrice(price) {

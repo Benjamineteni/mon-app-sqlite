@@ -37,6 +37,29 @@ const createWindow = () => {
    mainWindow.webContents.openDevTools();
 };
 
+// Suppression d'un produit
+ipcMain.handle('delete-product', async (event, id) => {
+  const sql = 'DELETE FROM products WHERE id = ?';
+  return new Promise((resolve, reject) => {
+    db.run(sql, [id], function(err) {
+      if (err) reject(err);
+      else resolve({ changes: this.changes });
+    });
+  });
+});
+
+// Mise à jour d'un produit
+ipcMain.handle('update-product', async (event, product) => {
+  const { id, name, price, stock } = product;
+  const sql = 'UPDATE products SET name = ?, price = ?, stock = ? WHERE id = ?';
+  return new Promise((resolve, reject) => {
+    db.run(sql, [name, price, stock, id], function(err) {
+      if (err) reject(err);
+      else resolve({ changes: this.changes });
+    });
+  });
+});
+
 /*function registerDbIpc() {
   ipcMain.handle('db:listNotes', async () => await listNotes());
   ipcMain.handle('db:addNote', async (_event, text) => await addNote(text));
