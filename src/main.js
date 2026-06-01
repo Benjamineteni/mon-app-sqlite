@@ -37,6 +37,33 @@ const createWindow = () => {
    mainWindow.webContents.openDevTools();
 };
 
+// Suppression d'un produit
+ipcMain.handle('delete-product', async (event, id) => {
+  const sql = 'DELETE FROM products WHERE id = ?';
+  return new Promise((resolve, reject) => {
+    db.run(sql, [id], function(err) {
+      if (err) reject(err);
+      else resolve({ changes: this.changes });
+    });
+  });
+});
+
+// Écouter la demande de lecture des produits
+ipcMain.handle('get-products', async () => {
+  return new Promise((resolve) => {
+      const sql = `SELECT id, name, price FROM products`;
+      
+      db.all(sql, [], (err, rows) => {
+          if (err) {
+              resolve({ success: false, error: err.message });
+          } else {
+              resolve({ success: true, data: rows }); // rows contient le tableau de produits
+          }
+      });
+  });
+});
+
+
 /*function registerDbIpc() {
   ipcMain.handle('db:listNotes', async () => await listNotes());
   ipcMain.handle('db:addNote', async (_event, text) => await addNote(text));
@@ -68,6 +95,24 @@ app.whenReady().then(() => {
       createWindow();
     }
   });
+});
+
+// Connexion à votre fichier SQLite
+const db = new sqlite3.Database(path.join(__dirname, 'votre-base.db'));
+
+// Écouter l'appel du Renderer Process
+ipcMain.handle('update-product', async (event, productData) => {
+    return new Promise((resolve) => {
+        const sql = `UPDATE products SET name = ?, price = ? WHERE id = ?`;
+        
+        db.run(sql, [productData.name, productData.price, productData.id], function(err) {
+            if (err) {
+                resolve({ success: false, error: err.message });
+            } else {
+                resolve({ success: true, changes: this.changes });
+            }
+        });
+    });
 });
 
 

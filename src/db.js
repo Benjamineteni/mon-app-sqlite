@@ -1,3 +1,4 @@
+
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
@@ -128,5 +129,3 @@ export async function updateProduct(id, product) {
 
   return await get('SELECT id, name, price, quantity, created_at FROM products WHERE id = ?', [productId]);
 }
-
-
