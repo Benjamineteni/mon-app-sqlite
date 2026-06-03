@@ -1,11 +1,8 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 
-//import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
-import { initDatabase, createProduct, listProducts, closeDb } from './db.js'; // bref ici vous importez tout ce que vous avez exporté de db.js
-
-
+import { initDatabase, createProduct, listProducts, updateProduct, deleteProduct, closeDb } from './db.js'; // bref ici vous importez tout ce que vous avez exporté de db.js
 
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -37,17 +34,12 @@ const createWindow = () => {
    mainWindow.webContents.openDevTools();
 };
 
-/*function registerDbIpc() {
-  ipcMain.handle('db:listNotes', async () => await listNotes());
-  ipcMain.handle('db:addNote', async (_event, text) => await addNote(text));
-  ipcMain.handle('db:deleteNote', async (_event, id) => await deleteNote(id));
-}*/
-const sessionsByWebContentsId = new Map();
 
 function registerDbIpc() {
   ipcMain.handle('product:create', async (_event, product) => await createProduct(product));
   ipcMain.handle('product:list', async () => await listProducts());
-  
+  ipcMain.handle('product:update', async (_event, id, productToUpdate) => await updateProduct(id, productToUpdate));
+  ipcMain.handle('product:delete', async (_event, id) => await deleteProduct(id));
 }
 
 // This method will be called when Electron has finished
@@ -68,7 +60,6 @@ app.whenReady().then(() => {
     }
   });
 });
-
 
 // Si database.js exporte initDb
 //const { initDb } = require('./db.js'); 

@@ -95,4 +95,36 @@ export async function listProducts() {
   return await all('SELECT id, name, price, quantity, created_at FROM products ORDER BY created_at DESC');
 }
 
+export async function deleteProduct(id) {
+  checkDbInitialized();
 
+  const productId = Number(id);
+  if (!Number.isInteger(productId) || productId <= 0) {
+    throw new Error('Invalid product id');
+  }
+
+  const result = await run('DELETE FROM products WHERE id = ?', [productId]);
+  return { changes: result.changes };
+}
+
+export async function updateProduct(id, productToUpdate) {
+  checkDbInitialized();
+
+  const productId = Number(id);
+  if (!Number.isInteger(productId) || productId <= 0) {
+    throw new Error('Invalid product id');
+  }
+
+  const name = String(productToUpdate.name ?? '').trim();
+  if (!name) throw new Error('Product name is required');
+
+  const price = Number(productToUpdate.price ?? 0);
+  const quantity = Number(productToUpdate.quantity ?? 0);
+
+  await run(
+    'UPDATE products SET name = ?, price = ?, quantity = ? WHERE id = ?',
+    [name, price, quantity, productId]
+  );
+
+  return await get('SELECT id, name, price, quantity, created_at FROM products WHERE id = ?', [productId]);
+}

@@ -33,57 +33,69 @@ import './renderer/css/bootstrap-icons.css';
 import './renderer/js/bootstrap.min.js';
 
 const productForm = document.querySelector('#productForm');
-const productName = document.querySelector('#productName');
-const productPrice = document.querySelector('#productPrice');
-const productQty = document.querySelector('#productQty');
+const productNameElement = document.querySelector('#productName');
+const productPriceElement = document.querySelector('#productPrice');
+const productQtyElement = document.querySelector('#productQty');
+const btnSubmit = document.querySelector('#btnSubmit');
+
+let productAction = 'create'; // 'create' or 'update'
+let productId;
+
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', () => {
-    loadProducts();
+  loadProducts();
 });
 
 productForm?.addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  const name = productName?.value ?? '';
-  const price = productPrice?.value ?? '';
-  const quantity = productQty?.value ?? '';
+  const name = productNameElement?.value ?? '';
+  const price = productPriceElement?.value ?? '';
+  const quantity = productQtyElement?.value ?? '';
 
-  console.log('Creating product with values:', { name, price, quantity });
+  let product = {
+    name,
+    price,
+    quantity
+  };
 
   try {
-
-    let product = {
-      name,
-      price,
-      quantity
-    };
-
-   const newProduct = await window.apiProducts.createProduct(product);
-   console.log('product created successfully :', newProduct);
-   loadProducts();
+    if (productAction === 'update') {
+      console.log('Updating product with values:', { name, price, quantity });
+      const updatedProduct = await window.apiProducts.updateProduct(productId, product);
+      console.log('product updated successfully :', updatedProduct);
+      btnSubmit.textContent = 'Save';
+      productAction = 'create';
+      productId = undefined;
+    } else {
+      console.log('Creating product with values:', { name, price, quantity });
+      const newProduct = await window.apiProducts.createProduct(product);
+      console.log('product created successfully :', newProduct);
+    }
   } catch (err) {
-    console.error('Error creating product:', err);
+    console.error('Error saving/updating product:', err);
   }
+  productForm?.reset();
+  loadProducts();
 });
-
 
 // Load products and display them
 async function loadProducts() {
-    try {
-        const products = await window.apiProducts.listProducts();
-        displayProducts(products);
-    } catch (error) {
-        console.error('Error occured when loading products:', error);
-    }
+  try {
+    const products = await window.apiProducts.listProducts();
+    displayProducts(products);
+  } catch (error) {
+    console.error('Error occured when loading products:', error);
+  }
 }
 
 // Create html elements to display products
 function displayProducts(products) {
-    const productListElement = document.getElementById('product-list');
-    
-    if (products.length === 0) {
-        productListElement.innerHTML = `
+  const productListElement = document.getElementById('product-list');
+
+  if (products.length === 0) {
+    productListElement.innerHTML = `
             <tr>
                 <td colspan="6" class="text-center text-muted">
                     <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
@@ -91,10 +103,10 @@ function displayProducts(products) {
                 </td>
             </tr>
         `;
-        return;
-    }
-    
-    productListElement.innerHTML = products.map(product => `
+    return;
+  }
+
+  productListElement.innerHTML = products.map(product => `
         <tr>
             <td>${product.id}</td>
             <td><strong>${escapeHtml(product?.name)}</strong></td>
@@ -105,7 +117,7 @@ function displayProducts(products) {
                 </span>
             </td>
             <td>
-                <button class="btn btn-sm btn-info btn-action" onclick="updateProduct(${product.id})">
+                <button class="btn btn-sm btn-info btn-action" onclick="initiateUpdate(${product.id}, '${escapeHtml(product?.name)}', ${product?.price}, ${product?.quantity})">
                     Update <i class="fas fa-edit"></i>
                 </button>
                 <button class="btn btn-sm btn-danger btn-action" onclick="deleteProduct(${product.id})">
@@ -116,18 +128,41 @@ function displayProducts(products) {
     `).join('');
 }
 
+window.deleteProduct = async (id) => {
+  if (!confirm('Voulez-vous vraiment supprimer ce produit ?')) {
+    return;
+  }
+
+  try {
+    await window.apiProducts.deleteProduct(id);
+    await loadProducts();
+  } catch (error) {
+    console.error('Error deleting product:', error);
+  }
+};
+
+window.initiateUpdate = (id, name, price, quantity) => {
+  productNameElement.value = name ?? '';
+  productPriceElement.value = price ?? '';
+  productQtyElement.value = quantity ?? '';
+  btnSubmit.textContent = 'Update';
+  productNameElement.focus();
+  productAction = 'update';
+  productId = id;
+};
+
 // Formater le prix
 function formatPrice(price) {
-    return new Intl.NumberFormat('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    }).format(price);
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(price);
 }
 
 // Échapper les caractères HTML
 function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
 }
