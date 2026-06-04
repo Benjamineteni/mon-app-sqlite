@@ -27,16 +27,16 @@
  */
 
 import './renderer/css/bootstrap.min.css';
-import './renderer/css/style.css';
 import './renderer/css/bootstrap-icons.css';
-
 import './renderer/js/bootstrap.min.js';
+import './renderer/css/style.css';
 
 const productForm = document.querySelector('#productForm');
 const productNameElement = document.querySelector('#productName');
 const productPriceElement = document.querySelector('#productPrice');
 const productQtyElement = document.querySelector('#productQty');
 const btnSubmit = document.querySelector('#btnSubmit');
+const btnCancel = document.querySelector('#btnCancel');
 
 let productAction = 'create'; // 'create' or 'update'
 let productId;
@@ -78,6 +78,13 @@ productForm?.addEventListener('submit', async (e) => {
   }
   productForm?.reset();
   loadProducts();
+});
+
+// When canceling an update, reset the form and product action
+btnCancel?.addEventListener('click', () => {
+  productAction = 'create';
+  productId = undefined;
+  btnSubmit.textContent = 'Save';
 });
 
 // Load products and display them
@@ -128,17 +135,26 @@ function displayProducts(products) {
     `).join('');
 }
 
-window.deleteProduct = async (id) => {
-  if (!confirm('Voulez-vous vraiment supprimer ce produit ?')) {
-    return;
-  }
+let pendingDeleteId = null;
+const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
 
+document.getElementById('btnConfirmDelete').addEventListener('click', async () => {
+  if (pendingDeleteId === null) return;
+  deleteModal.hide();
   try {
-    await window.apiProducts.deleteProduct(id);
+    await window.apiProducts.deleteProduct(pendingDeleteId);
     await loadProducts();
+    productNameElement.focus();
   } catch (error) {
     console.error('Error deleting product:', error);
+  } finally {
+    pendingDeleteId = null;
   }
+});
+
+window.deleteProduct = (id) => {
+  pendingDeleteId = id;
+  deleteModal.show();
 };
 
 window.initiateUpdate = (id, name, price, quantity) => {
